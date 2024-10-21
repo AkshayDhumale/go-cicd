@@ -43,6 +43,6 @@ jobs:
       # also check the files after build
       - name: Build Go Application
         run: |
-          go build -o main.go
+          go build -o app main.go
           pwd            
           ls -lt
