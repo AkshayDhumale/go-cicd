@@ -31,26 +31,26 @@ jobs:
         with:
           go-version: "1.20"
 
-      #----------initial 1st try --->> works OK
-      # - name: Build Go Application
-      #   run: go build -o app ./main.go
-
-      #----------initial 2st change --->> works OK
+      #----------initial 1st change --->> same name executable generate
       # - name: Build Go Application
       #   run: go build -o ~./main.go
 
-      #----------initial 3rd change --->> works OK
+      #----------initial 2nd change --->> create "main" executable
       # also check the files after build
       # - name: Build Go Application
       #   run: |
-      #     go build -o app main.go
+      #     go build main.go
       #     pwd
       #     ls -lt
 
-      #----------initial 3rd change --->> works OK
+      #----------initial 3rd try --->> works OK
+      # - name: Build Go Application
+      #   run: go build -o app ./main.go
+
+      #----------initial 4rth change --->> works OK
       # also check the files after build
       - name: Build Go Application
         run: |
-          go build main.go
-          pwd            
+          go build -o app main.go
+          pwd
           ls -lt
