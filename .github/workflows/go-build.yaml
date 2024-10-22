@@ -31,20 +31,24 @@ jobs:
         with:
           go-version: "1.20"
 
-      # Clean the Go module cache to avoid conflicts during cache restore
-      - name: Clean Go Module Cache
-        run: go clean -modcache
+      #######---------caching------------########
 
-      # Cache Go modules for faster builds
-      - name: Cache Go Modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+      # Clean the Go module cache to avoid conflicts during cache restore
+      # - name: Clean Go Module Cache
+      #   run: go clean -modcache
+
+      # # Cache Go modules for faster builds
+      # - name: Cache Go Modules
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       ~/go/pkg/mod
+      #       ~/.cache/go-build
+      #     key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-go-
+
+      #######---------caching------------########
 
       #----------initial 1st change --->> same name executable generate
       # - name: Build Go Application
