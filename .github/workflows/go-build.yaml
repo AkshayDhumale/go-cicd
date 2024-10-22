@@ -34,19 +34,19 @@ jobs:
       #######---------caching------------########
 
       # Clean the Go module cache to avoid conflicts during cache restore
-      # - name: Clean Go Module Cache
-      #   run: go clean -modcache
+      - name: Clean Go Module Cache
+        run: go clean -modcache
 
-      # # Cache Go modules for faster builds
-      # - name: Cache Go Modules
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: |
-      #       ~/go/pkg/mod
-      #       ~/.cache/go-build
-      #     key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-go-
+      # Cache Go modules for faster builds
+      - name: Cache Go Modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
 
       #######---------caching------------########
 
@@ -76,8 +76,8 @@ jobs:
           ls -lrt
 
       # Upload the Go binary as an artifact
-      # - name: Upload Go Binary
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: go-app
-      #     path: ./app
+      - name: Upload Go Binary
+        uses: actions/upload-artifact@v3
+        with:
+          name: go-app
+          path: ./app
