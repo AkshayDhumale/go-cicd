@@ -41,8 +41,16 @@ jobs:
 
       #----------initial 3rd change --->> works OK
       # also check the files after build
+      # - name: Build Go Application
+      #   run: |
+      #     go build -o app main.go
+      #     pwd
+      #     ls -lt
+
+      #----------initial 3rd change --->> works OK
+      # also check the files after build
       - name: Build Go Application
         run: |
-          go build -o app main.go
+          go build main.go
           pwd            
           ls -lt
