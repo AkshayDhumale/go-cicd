@@ -1,3 +1,88 @@
+# name: Go Build
+
+# on:
+#   push:
+#     branches:
+#       - main
+#     paths:
+#       - .github/workflows/go-build.yaml
+#   pull_request:
+#     branches:
+#       - main
+
+# jobs:
+#   # First stage: Build
+#   build:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
+
+#       # Print the current directories and file within
+#       - name: Print current directory (for debugging)
+#         run: |
+#           pwd
+#           ls -R
+
+#       # Install Go
+#       - name: Set up Go
+#         uses: actions/setup-go@v4
+#         with:
+#           go-version: "1.20"
+
+#       #######---------caching------------########
+
+#       # Clean the Go module cache to avoid conflicts during cache restore
+#       - name: Clean Go Module Cache
+#         run: go clean -modcache
+
+#       # Cache Go modules for faster builds
+#       - name: Cache Go Modules
+#         uses: actions/cache@v4
+#         with:
+#           path: |
+#             ~/go/pkg/mod
+#             ~/.cache/go-build
+#           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+#           restore-keys: |
+#             ${{ runner.os }}-go-
+
+#       #######---------caching------------########
+
+#       #----------initial 1st change --->> same name executable generate
+#       # - name: Build Go Application
+#       #   run: go build -o ~./main.go
+
+#       #----------initial 2nd change --->> create "main" executable
+#       # also check the files after build
+#       # - name: Build Go Application
+#       #   run: |
+#       #     go build main.go
+#       #     pwd
+#       #     ls -lt
+
+#       #----------initial 3rd try --->> works OK
+#       # - name: Build Go Application
+#       #   run: go build -o app ./main.go
+
+#       #----------initial 4rth change --->> works OK
+
+#       # also check the files after build
+#       - name: Build Go Application
+#         run: |
+#           go build -o app main.go
+#           pwd
+#           ls -lrt
+
+#       # Upload the Go binary as an artifact
+#       - name: Upload Go Binary
+#         uses: actions/upload-artifact@v3
+#         with:
+#           name: go-app
+#           path: ./app
+#------------------------------------------------------
+
 name: Go Build
 
 on:
@@ -25,18 +110,6 @@ jobs:
           pwd
           ls -R
 
-      # Install Go
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: "1.20"
-
-      #######---------caching------------########
-
-      # Clean the Go module cache to avoid conflicts during cache restore
-      - name: Clean Go Module Cache
-        run: go clean -modcache
-
       # Cache Go modules for faster builds
       - name: Cache Go Modules
         uses: actions/cache@v4
@@ -48,25 +121,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-      #######---------caching------------########
-
-      #----------initial 1st change --->> same name executable generate
-      # - name: Build Go Application
-      #   run: go build -o ~./main.go
-
-      #----------initial 2nd change --->> create "main" executable
-      # also check the files after build
-      # - name: Build Go Application
-      #   run: |
-      #     go build main.go
-      #     pwd
-      #     ls -lt
-
-      #----------initial 3rd try --->> works OK
-      # - name: Build Go Application
-      #   run: go build -o app ./main.go
-
-      #----------initial 4rth change --->> works OK
+      # Install Go
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.20"
 
       # also check the files after build
       - name: Build Go Application
