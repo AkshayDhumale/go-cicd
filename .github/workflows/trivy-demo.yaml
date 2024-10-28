@@ -93,6 +93,7 @@ jobs:
           version: v0.56.2
           cache: true
       # Step 8: Scan Docker image with Trivy
+
       - name: Scan Docker image with Trivy
         id: trivy-scan
         run: |
