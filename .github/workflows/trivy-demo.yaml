@@ -96,4 +96,4 @@ jobs:
       - name: Scan Docker image with Trivy
         id: trivy-scan
         run: |
-          trivy image --severity HIGH,CRITICAL akshaydhumale/app:v1
+          trivy image --skip-db-update --severity HIGH,CRITICAL akshaydhumale/app:v1
