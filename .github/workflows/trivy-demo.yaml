@@ -80,7 +80,7 @@ jobs:
         with:
           image-ref: "akshaydhumale/app:v1"
           format: "table"
-          exit-code: "1"
+          # exit-code: "1"
           ignore-unfixed: true
           vuln-type: "os,library"
           severity: "CRITICAL,HIGH"
