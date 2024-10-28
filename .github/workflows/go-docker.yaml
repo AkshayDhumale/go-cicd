@@ -31,16 +31,18 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # ------------ WITHOUT CACHING ------------#
       # - name: Build and push
       #   uses: docker/build-push-action@v6
       #   with:
       #     push: true
-      #     tags: user/app:latest
+      #     tags: akshaydhumale/app:latest
+
+      # ------------ WITH CACHING ------------#
+      # - name: Build and push
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     push: true
+      #     tags: akshaydhumale/app:latest
       #     cache-from: type=registry,ref=user/app:buildcache
       #     cache-to: type=registry,ref=user/app:buildcache,mode=max
-
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          tags: akshaydhumale/app:latest
