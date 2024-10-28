@@ -84,4 +84,15 @@ jobs:
           ignore-unfixed: true
           vuln-type: "os,library"
           severity: "CRITICAL,HIGH"
-          skip-setup-trivy: true
+          update-db: true
+
+      # Step 7: Install Trivy
+      # - name: Install Trivy
+      #   run: |
+      #     wget -qO- https://github.com/aquasecurity/trivy/releases/latest/download/trivy_Linux-64bit.tar.gz | tar zxvf - -C /usr/local/bin/
+
+      # # Step 8: Scan Docker image with Trivy
+      # - name: Scan Docker image with Trivy
+      #   id: trivy-scan
+      #   run: |
+      #     trivy image --exit-code 1 --severity HIGH,CRITICAL --skip-update akshaydhumale/app:v1
