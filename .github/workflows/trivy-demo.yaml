@@ -96,4 +96,4 @@ jobs:
       - name: Scan Docker image with Trivy
         id: trivy-scan
         run: |
-          trivy image --exit-code 1 --severity HIGH,CRITICAL --skip-update akshaydhumale/app:v1
+          trivy image --exit-code 1 --severity HIGH,CRITICAL akshaydhumale/app:v1
