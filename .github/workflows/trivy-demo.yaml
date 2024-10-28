@@ -90,10 +90,10 @@ jobs:
         uses: aquasecurity/setup-trivy@v0.2.2
         with:
           version: v0.56.2
-          cache: true
+          # cache: true
       # Step 8: Scan Docker image with Trivy
 
       - name: Scan Docker image with Trivy
         id: trivy-scan
         run: |
-          trivy image --skip-db-update --severity HIGH,CRITICAL akshaydhumale/app:v1
+          trivy image --severity HIGH,CRITICAL akshaydhumale/app:v1
