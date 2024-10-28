@@ -1,5 +1,5 @@
 # Use an official Go image as the base
-FROM golang:1.20-alpine AS builder
+FROM golang:1.23 AS builder
 
 # Set up dependencies first to maximize caching
 WORKDIR /app
