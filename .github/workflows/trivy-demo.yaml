@@ -84,7 +84,7 @@ jobs:
           ignore-unfixed: true
           vuln-type: "os,library"
           severity: "CRITICAL"
-
+      #
       # # Step 7: Install Trivy
       # - name: Install Trivy
       #   uses: aquasecurity/setup-trivy@v0.2.2
