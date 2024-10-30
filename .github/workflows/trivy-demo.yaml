@@ -83,7 +83,7 @@ jobs:
           exit-code: "1"
           ignore-unfixed: true
           vuln-type: "os,library"
-          severity: "HIGH,CRITICAL"
+          severity: "Low,MEDIUM,HIGH,CRITICAL"
       #
       # # Step 7: Install Trivy
       # - name: Install Trivy
