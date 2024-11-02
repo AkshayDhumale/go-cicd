@@ -61,7 +61,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true # Only push if previous steps succeeded
-          tags: akshaydhumale/app:latest
+          tags: akshaydhumale/app:v1
 #---------------- tetsing the trivy action ------------------------
 # name: Go-Trivy-check
 
