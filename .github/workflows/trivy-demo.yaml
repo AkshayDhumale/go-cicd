@@ -36,7 +36,7 @@ jobs:
           # cache-from: type=registry,ref= akshaydhumale/app:buildcache
           # cache-to: type=registry,ref= akshaydhumale/app:buildcache,mode=max
       - name: Cheking docker images
-        run: docker ps -a
+        run: docker images
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.28.0
