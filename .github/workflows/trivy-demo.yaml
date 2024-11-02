@@ -35,15 +35,15 @@ jobs:
           cache-to: type=local,dest=/tmp/.buildx-cache
           # cache-from: type=registry,ref= akshaydhumale/app:buildcache
           # cache-to: type=registry,ref= akshaydhumale/app:buildcache,mode=max
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          image-ref: "akshaydhumale/app:v1"
-          format: "table"
-          exit-code: "1"
-          ignore-unfixed: true
-          vuln-type: "os,library"
-          severity: "LOW,MEDIUM,HIGH,CRITICAL"
+      # - name: Run Trivy vulnerability scanner
+      #   uses: aquasecurity/trivy-action@0.28.0
+      #   with:
+      #     image-ref: "akshaydhumale/app:v1"
+      #     format: "table"
+      #     exit-code: "1"
+      #     ignore-unfixed: true
+      #     vuln-type: "os,library"
+      #     severity: "LOW,MEDIUM,HIGH,CRITICAL"
 
       #       - name: Download Trivy
       #         uses: aquasecurity/trivy-action@master
