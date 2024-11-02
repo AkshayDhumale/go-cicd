@@ -30,7 +30,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: false # Do not push yet, just build the image locally
-          tags: akshaydhumale/app:v1
+          tags: akshaydhumale/app:v2
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           # cache-from: type=registry,ref= akshaydhumale/app:buildcache
@@ -38,7 +38,7 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.28.0
         with:
-          image-ref: "akshaydhumale/app:v1"
+          image-ref: "akshaydhumale/app:v2"
           format: "table"
           exit-code: "1"
           ignore-unfixed: true
@@ -61,7 +61,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true # Only push if previous steps succeeded
-          tags: akshaydhumale/app:v1
+          tags: akshaydhumale/app:v2
 #---------------- tetsing the trivy action ------------------------
 # name: Go-Trivy-check
 
