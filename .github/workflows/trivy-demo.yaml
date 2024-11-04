@@ -57,6 +57,7 @@ jobs:
         run: docker images
 
       #-------------- Trivy scan --------------#
+
       # - name: Run Trivy vulnerability scanner
       #   uses: aquasecurity/trivy-action@0.28.0
       #   with:
