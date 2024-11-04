@@ -44,7 +44,7 @@ jobs:
           # context: .
           push: false # Do not push yet, just build the image locally
           load: true # must load image before tag
-          tags: akshaydhumale/app
+          tags: akshaydhumale/app:${{ github.sha }}
           cache-from: type=local,src=/tmp/.buildx-cache # local
           cache-to: type=local,dest=/tmp/.buildx-cache # local
 
@@ -86,4 +86,4 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true # Only push if previous steps succeeded
-          tags: akshaydhumale/app
+          tags: akshaydhumale/app:${{ github.sha }}
