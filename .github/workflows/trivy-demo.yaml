@@ -44,7 +44,7 @@ jobs:
           # context: .
           push: false # Do not push yet, just build the image locally
           load: true # must load image before tag
-          tags: akshaydhumale/app:v2
+          tags: akshaydhumale/app
           cache-from: type=local,src=/tmp/.buildx-cache # local
           cache-to: type=local,dest=/tmp/.buildx-cache # local
 
