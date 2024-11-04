@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - .github/workflows/trivy-demo.yaml # worflow only runs if change in the following file
+    tags:
+      - "v*.*.*"
   pull_request:
     branches:
       - main
