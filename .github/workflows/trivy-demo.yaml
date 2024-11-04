@@ -17,6 +17,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          # list of Docker images to use as base name for tags
+          images: |
+            akshaydhumale/app
+          # generate Docker tags based on the following events/attributes
+          tags: |
+            type=semver,pattern={{major}}.{{minor}}
+
       #-------------- Install Docker Buildx --------------#
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -44,7 +55,8 @@ jobs:
           # context: .
           push: false # Do not push yet, just build the image locally
           load: true # must load image before tag
-          tags: akshaydhumale/app:${{ github.sha }}
+          # tags: akshaydhumale/app:${{ github.sha }}
+          tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=local,src=/tmp/.buildx-cache # local
           cache-to: type=local,dest=/tmp/.buildx-cache # local
 
@@ -86,4 +98,5 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true # Only push if previous steps succeeded
-          tags: akshaydhumale/app:${{ github.sha }}
+          # tags: akshaydhumale/app:${{ github.sha }}
+          tags: ${{ steps.meta.outputs.tags }}
