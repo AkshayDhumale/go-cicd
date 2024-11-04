@@ -86,4 +86,4 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true # Only push if previous steps succeeded
-          tags: akshaydhumale/app:${{GITHUB_SHA::7}}
+          tags: akshaydhumale/app:${{ github.sha }}
