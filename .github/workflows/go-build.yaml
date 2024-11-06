@@ -111,15 +111,17 @@ jobs:
           ls -R
 
       # Cache Go modules for faster builds
-      - name: Cache Go Modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+      # (only if u r cashing other files (eg. artifacts) along with dependancies)
+
+      # - name: Cache Go Modules
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       ~/go/pkg/mod
+      #       ~/.cache/go-build
+      #     key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-go-
 
       # Install Go
       - name: Set up Go
