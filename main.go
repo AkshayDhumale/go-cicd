@@ -36,7 +36,7 @@ func main() {
     })
 	
 	http.HandleFunc("/health", health)
-	log.Printf("web server is started...")
+	log.Printf("web server is started At 8080...")
     http.ListenAndServe(":80", nil)
 }
 // adding this comment to check wether the github runner event triggers or not
