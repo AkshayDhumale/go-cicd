@@ -68,7 +68,7 @@ jobs:
           exit-code: "1"
           ignore-unfixed: true
           vuln-type: "os,library"
-          severity: "HIGH,CRITICAL"
+          severity: "LOW,MEDIUM,HIGH,CRITICAL"
 
       #-------------- Manual Trivy Installation & Scan --------------#
       # - name: Download Trivy
