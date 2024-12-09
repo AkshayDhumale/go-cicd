@@ -12,6 +12,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Set up Buildx with Docker container driver
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          driver: docker-container
+
       # Restore the cache
       - name: Restore buildx cache
         uses: actions/cache@v3
