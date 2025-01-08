@@ -134,7 +134,7 @@ jobs:
         run: |
           go build -o app main.go
           pwd
-          ls -l
+          ls -lrt
 
       # Upload the Go binary as an artifact
       - name: Upload Go Binary
