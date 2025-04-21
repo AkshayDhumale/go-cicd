@@ -1,306 +1,252 @@
-Below is the updated GitHub Wiki Markdown document. It now includes small Mermaid flow charts alongside each major step to help visualize the process for both the Azure Portal and CLI methods.
+## 📚 Kubernetes RBAC: Team Guide
+
+### 📑 Table of Contents
+- [📚 Kubernetes RBAC: Team Guide](#-kubernetes-rbac-team-guide)
+  - [📑 Table of Contents](#-table-of-contents)
+  - [🎯 Overview](#-overview)
+  - [🔑 1. What is Kubernetes RBAC?](#-1-what-is-kubernetes-rbac)
+  - [🚂 2. Authentication Methods](#-2-authentication-methods)
+  - [🎭 3. Role \& RoleBinding (Namespace Scope)](#-3-role--rolebinding-namespace-scope)
+  - [🌐 4. ClusterRole \& ClusterRoleBinding (Cluster Scope)](#-4-clusterrole--clusterrolebinding-cluster-scope)
+  - [🔧 5. Token-based Authentication Example](#-5-token-based-authentication-example)
+    - [5.1 Declare \& Create a ServiceAccount 🆔](#51-declare--create-a-serviceaccount-)
+    - [5.2 Manually Create a Secret for the SA 🔑](#52-manually-create-a-secret-for-the-sa-)
+    - [5.3 Inspect the Token \& Use It 🌐](#53-inspect-the-token--use-it-)
+  - [📊 6. Demonstrating Access Levels](#-6-demonstrating-access-levels)
+    - [6.1 Cluster-Level Access](#61-cluster-level-access)
+    - [6.2 Namespace-Level Access](#62-namespace-level-access)
+  - [📄 7. RoleBinding vs ClusterRoleBinding for Built-in Roles](#-7-rolebinding-vs-clusterrolebinding-for-built-in-roles)
+  - [🛡️ 8. Best Practices \& Tips](#️-8-best-practices--tips)
 
 ---
 
-# 🔵 Azure Key Vault: Secrets Management Guide ☁️
+### 🎯 Overview
 
-This guide explains how to create an Azure Key Vault, manage access for both users and applications, add secrets with detailed metadata, and enforce policies using Azure Policy. Each section includes step-by-step instructions with corresponding Mermaid flow charts for visual clarity.
-
----
-
-## 📘 Table of Contents
-
-- [🔵 Azure Key Vault: Secrets Management Guide ☁️](#-azure-key-vault-secrets-management-guide-️)
-  - [📘 Table of Contents](#-table-of-contents)
-  - [🔧 Create Azure Key Vault](#-create-azure-key-vault)
-    - [For more details follow the given link](#for-more-details-follow-the-given-link)
-  - [🔑 Grant Access to Users and Applications](#-grant-access-to-users-and-applications)
-    - [👤 1. User Access (Preferred: Azure RBAC)](#-1-user-access-preferred-azure-rbac)
-    - [For more details follow the given links](#for-more-details-follow-the-given-links)
-    - [🤖 2. Application (k8s) Access (Using Service Principals)](#-2-application-k8s-access-using-service-principals)
-    - [The app is now registered as a service principal.](#the-app-is-now-registered-as-a-service-principal)
-    - [For more details follow the given links](#for-more-details-follow-the-given-links-1)
-    - [Mermaid Flow Chart](#mermaid-flow-chart)
-  - [📥 Add Secrets to Key Vault](#-add-secrets-to-key-vault)
-    - [For more details follow the given links](#for-more-details-follow-the-given-links-2)
-  - [📏 Policy Enforcement with Azure Policy](#-policy-enforcement-with-azure-policy)
-    - [Policy vs. Initiative](#policy-vs-initiative)
-    - [Mermaid Flow Chart](#mermaid-flow-chart-1)
-  - [✅ Summary](#-summary)
+Kubernetes Role​‑Based Access Control (RBAC) lets you define **who** (users, groups, or service accounts) can perform **what actions** (verbs) on **which resources** (pods, secrets, nodes, etc.), and **where** (namespaces or cluster-wide). This guide is tailored for newcomers setting up RBAC for a team.
 
 ---
 
-## 🔧 Create Azure Key Vault
+### 🔑 1. What is Kubernetes RBAC?
+RBAC is a **gatekeeper** that:
+1. **Authenticates** the actor (verifies identity: human or machine).
+2. **Authorizes** the action (checks if the actor has permission to perform the requested operation).
 
-**Steps (Portal & CLI):**
-
-1. **Using the Azure Portal:**  
-   - Go to the [Azure Portal](https://portal.azure.com/).  
-   - Search for **Key Vault** and select it.
-   - Click on **➕ Create a resource**.  
-
-  <img src="image.png" alt="Azure Portal search" width="650" height="auto"/>
-
-- 1. **Fill in Details:**  
-  <u>**Basic**</u>
-
-   - **Name:** Unique vault name.  
-   - **Subscription:** Select your subscription.  
-   - **Resource Group:** Choose or create a resource group.  
-   - **Region:** Select your nearest region.
-  
-  <img src="image-1.png" alt="Azure Portal Key Vault Create" width="650" height="auto"/>
-  
-  <u>**Access Configuration**</u>
-  - **Permission model:** `Azure role-based access control (recommended)`.
-  
-  <img src="image-2.png" alt="Azure Portal Key Vault Create" width="650" height="auto"/>
-  
-  <u>**Networking**</u>
-  - **Public Access:** `All networks`.
-  
-  <img src="image-3.png" alt="Azure Portal Key Vault Create" width="650" height="auto"/>
-
-  <u>**Tags**</u> (Optional)
-  - **Name:** give some name.
-  - **value:** value.
-
-  <img src="image-4.png" alt="Azure Portal Key Vault Create" width="650" height="auto"/>
-
-  <u>**Finalize:**</u>  
-   - **Portal:** Click **`Review + create`**, then **Create**.  
-
-> **CLI:** The given command creates the vault immediately.
-- **Using the CLI:**  
-   - Run the following command (replace placeholders):
-     ```bash
-     az keyvault create --name <YourKeyVaultName> --resource-group <YourResourceGroup> --location <YourRegion>
-
-     ```
-### For more details follow the given link
-
-🔗 [Official Docs: Quick Create - Portal](https://learn.microsoft.com/en-us/azure/key-vault/general/quick-create-portal)
+Without RBAC, **any** authenticated actor could do **anything** against the API.
 
 ---
 
-## 🔑 Grant Access to Users and Applications
+### 🚂 2. Authentication Methods
+Kubernetes supports various ways to prove identity:
 
-Enhance your security by granting access separately for **users** and **applications**.
+| 🔐 Mechanism             | 📖 Description                                     | ⚙️ Use Case                             |
+|--------------------------|----------------------------------------------------|-----------------------------------------|
+| Certificate-based (mTLS) | Client TLS certs signed by a trusted CA           | High-security clusters                  |
+| Token-based (SA or JWT)  | Bearer tokens injected into pods or delivered to users | Automation, CI/CD pipelines      |
+| OIDC / OpenID Connect    | SSO via external providers (Dex, Keycloak, etc.)   | Enterprise SSO                          |
+| Webhook Token Validation | Delegate token checks to an external webhook       | Custom auth logic                       |
 
-### 👤 1. User Access (Preferred: Azure RBAC)
+---
 
-Azure RBAC is the recommended method as it provides centralized, role-based permissions management.
+### 🎭 3. Role & RoleBinding (Namespace Scope)
 
-- **Using the Azure Portal:**
+**Role**  
+A namespaced object that **groups permissions** (verbs on resources) **within** a single namespace. Think of it as a job description scoped to one team space.
 
-  1. **Step 1:** Open your Key Vault and navigate to **Access Control (IAM)**.
-     
-  <img src="image-5.png" alt="Azure Portal Key Vault Create" width="650" height="auto"/>
+**RoleBinding**  
+Associates that Role to specific **subjects** (Users, Groups, ServiceAccounts) inside the same namespace. You **must** create the Role first, then bind it.
 
-  2. **Step 2:** Click **➕ Add role assignment**.
+```yaml
+# role-pod-reader.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-reader       # Name of your Role
+  namespace: dev      # Scope: dev namespace
+rules:
+- apiGroups: [""]      # "" means the core API group
+  resources: ["pods"]
+  verbs: ["get", "watch", "list"]
+```
+```yaml
+# binding-pod-reader.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pod-reader-binding
+  namespace: dev
+- kind: ServiceAccount
+  name: demo-sa    # name of service account
+  namespace: dev
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+```
 
-  <img src="image-6.png" alt="Azure Portal Key Vault Create" width="650" height="auto"/>
+---
 
-  3. **Step 3:** Choose a role (e.g., `Key Vault Reader` or `Key Vault Secrets Officer`).
-   
-  <img src="image-7.png" alt="Azure Portal Key Vault Create" width="650" height="auto"/>
+### 🌐 4. ClusterRole & ClusterRoleBinding (Cluster Scope)
 
-  4. **Step 4:** Assign the role to the desired **User or Group**.
-     
-  <img src="image-8.png" alt="Azure Portal Key Vault Create" width="650" height="auto"/>
+**ClusterRole**  
+Similar to a Role, but **cluster​‑wide** (all namespaces) **or** for non​‑namespaced resources (nodes, certificates, CRDs).
 
-  **`Click Select members ( ).`**
+**ClusterRoleBinding**  
+Binds a ClusterRole to subjects **across** the entire cluster. You still create the ClusterRole first, then bind it.
 
-  <img src="image-9.png" alt="Azure Portal Key Vault Create" width="650" height="500"/>
+```yaml
+# clusterrole-node-reader.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: node-reader      # A reusable, cluster-wide permission set
+rules:
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "watch", "list"]
+```
+```yaml
+# crb-node-reader.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: infra-node-reader
+subjects:
+- kind: ServiceAccount
+  name: demo-sa     # name of service account
+  namespace: dev
+roleRef:
+  kind: ClusterRole
+  name: node-reader
+  apiGroup: rbac.authorization.k8s.io
+```
 
-  5. **Step 5:** Click **`Review + assign`**.
+---
 
-**Using the CLI:**
+### 🔧 5. Token-based Authentication Example
+Below we use **ServiceAccounts (SA)** to obtain tokens for API access. _Note: As of Kubernetes 1.24+, you must create SA secrets manually._
 
+#### 5.1 Declare & Create a ServiceAccount 🆔
+```yaml
+# demo.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: demo-sa
+  namespace: dev
+```
 ```bash
-az role assignment create --assignee <user-object-id> --role "Key Vault Secrets Officer" --scope $(az keyvault show --name <YourKeyVaultName> --query id -o tsv)
+kubectl apply -f demo.yaml
 ```
 
-> _Alternate Option: Use Access Policies as a secondary method._  
-> **Portal:**  
-> - Navigate to **Access Policies** → **➕ Add Access Policy**.  
-> - Select desired permissions, click **Select principal**, choose the user, then click **Add** and **Save**.  
-> **CLI:**  
-> ```bash
-> az keyvault set-policy --name <YourKeyVaultName> --upn <user@domain.com> --secret-permissions get list
-> ```
+- **ServiceAccount**: machine identity for pods or external tools. Lives in a namespace.
 
-### For more details follow the given links
-
-🔗 [Docs: RBAC Guide](https://learn.microsoft.com/en-us/azure/key-vault/general/rbac-guide)  
-🔗 [Docs: Assign Access Policy](https://learn.microsoft.com/en-us/azure/key-vault/general/assign-access-policy)
-
----
-
-### 🤖 2. Application (k8s) Access (Using Service Principals)
-
-To allow applications to access Azure resources securely, you need to create a service principal and assign it the necessary permissions.
-
-> `For example`: suppose Kubernetes needs to access secrets stored in Azure Key Vault. In such cases, **we cannot use user-based authentication**, as it's not suitable for automated workloads. Instead, we create a service principal, which provides a **client ID** and **client secret**. These credentials can be used by applications like Kubernetes to **authenticate** and **access the required resources** securely.
-
-**Step 1: Create a Service Principal**
-
-- **Using the Azure Portal:**  
-  1. Navigate to **Microsoft Entra ID** in the [Azure Portal](https://portal.azure.com/).
-    
-  <img src="image-10.png" alt="Azure Portal Key Vault Create" width="650" height="auto"/>
-
-  2. Select **App registrations** from the left-hand menu.  
-  3. Click **New registration**.  
-
-  <img src="image-11.png" alt="Azure Portal Key Vault Create" width="650" height="auto"/>
-
-  4. Enter a **Name**, choose the supported account types, and optionally specify a Redirect URI.  
-  5. Click **Register**. 
-   
-  <img src="image-12.png" alt="Azure Portal Key Vault Create" width="650" height="auto"/>
-
-  ### The app is now registered as a service principal.
-  **NOTE** :  `View & Copy its` **`Application (client) ID`**, **`Application (client) secret`** and **`Directory (tenant) ID`**. **it is required to create an authentication secret for kubernetes**
-
->**Using the CLI:**  
-  Run the following command (replace `<YourServicePrincipalName>` with your desired name):
-  ```bash
-  az ad sp create-for-rbac --name "<YourServicePrincipalName>" --skip-assignment
-  ```
-
-**Step 2: Assign Permissions via RBAC**
-
-**`NOTE : Follow the same steps as for user access. In the fourth step, search for the service principal you just created.`**
-
-- **Using the Azure Portal:** 
-  1. Open your Key Vault and navigate to **Access Control (IAM)**.  
-  2. Click **➕ Add role assignment**.  
-  3. Choose a role such as `Key Vault Secrets Officer`.  
-  4. In the **Select members** section, search for the service principal you just created.  
-  5. Click **Review + assign**.
-
-- **Using the CLI:**
-
-  ```bash
-  az role assignment create --assignee <service-principal-id> --role "Key Vault Secrets Officer" --scope $(az keyvault show --name <YourKeyVaultName> --query id -o tsv)
-  ```
-### For more details follow the given links
-
-🔗 [Docs: Creating a Service Principal](https://learn.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli)
-
-### Mermaid Flow Chart
-
-```mermaid
-graph TD;
-  A[Start: Create Service Principal] --> B[Portal: AAD > App Registrations > New Registration];
-  A --> C[CLI: az ad sp create-for-rbac];
-  B --> D[Obtain Client ID & Tenant ID];
-  C --> D;
-  D --> E[Navigate to Key Vault IAM];
-  E --> F[Assign Role to Service Principal];
-  F --> G[Access Granted];
+#### 5.2 Manually Create a Secret for the SA 🔑
+```yaml
+# demo-token.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: demo-sa-token
+  namespace: dev
+  annotations:
+    kubernetes.io/service-account.name: demo-sa
+type: kubernetes.io/service-account-token
 ```
-
----
-
-## 📥 Add Secrets to Key Vault
-
-When adding a secret, include detailed metadata for enhanced management:
-
-- **Using the Azure Portal:**
-
-  1. **Step 1:** Navigate to your **Key Vault** 
-  2. **Step 1:** On left hand side select **Objects** → Click **Secrets** → **➕ Generate/Import**.
-
-  <img src="image-13.png" alt="Azure Portal Key Vault Create" width="650" height="auto"/>
-
-  3. **Step 3:** Choose **Upload Options**: `Manual`.
-  4. **Step 4:** Fill in the details:  
-     - **Name:** A unique identifier for the secret.  
-     - **Value:** The secret data (e.g., password, connection string).  
-     - **Activation Date:** `(Optional)` When the secret becomes active.  
-     - **Expiration Date:** `(Optional)` When the secret will expire.  
-     - **Content Type/Description:** `(Optional)` Additional details about the secret.
-  5. **Step 5:** Click **Create**.
-
-  <img src="image-14.png" alt="Azure Portal Key Vault Create" width="650" height="auto"/>
-
-**Using the CLI:**
-
 ```bash
-az keyvault secret set --vault-name <YourKeyVaultName> --name <SecretName> --value "<SecretValue>" --description "<Description>" --expires <ExpirationDate> --not-before <ActivationDate>
+kubectl apply -f demo-token.yaml
 ```
 
-### For more details follow the given links
+- **Why?** Generates a JWT token + CA bundle for the SA. Kubernetes auto​‑populates `data.token` and `data["ca.crt"]`.
 
-🔗 [Docs: Add Secret - Portal](https://learn.microsoft.com/en-us/azure/key-vault/secrets/quick-create-portal)
-
----
-
-## 📏 Policy Enforcement with Azure Policy
-
-![Azure Policy Enforcement](https://via.placeholder.com/650x400?text=Azure+Policy+Enforcement)
-
-Azure Policy helps enforce your organizational standards across resources.
-
-### Policy vs. Initiative
-
-- **Policy:**  
-  A single rule that evaluates resources against specific conditions (e.g., ensuring secure Key Vault settings).
-
-- **Initiative:**  
-  A collection of related policies grouped together for broader compliance goals, simplifying management.
-
-**Enforcing or Removing Policies on Key Vault:**
-
-**Using the Azure Portal:**
-
-- **To Enforce a Policy:**  
-  1. **Step 1:** Navigate to **Azure Policy** in the [Azure Portal](https://portal.azure.com/#blade/Microsoft_Azure_Policy/PolicyMenuBlade/Overview).  
-  2. **Step 2:** Browse or search for a built-in policy or initiative (e.g., targeting Key Vault configurations).  
-  3. **Step 3:** Click **Assign**, choose the scope (subscription/resource group), and complete the assignment.
-
-- **To Remove a Policy:**  
-  1. **Step 1:** In **Azure Policy**, go to **Assignments**.  
-  2. **Step 2:** Locate the policy or initiative assigned to your Key Vault.  
-  3. **Step 3:** Select the assignment and click **Delete** or **Remove Assignment**.
-
-**Using the CLI:**
-
-- **To Enforce a Policy:**
-  ```bash
-  az policy assignment create --policy <policy-definition-id> --scope $(az keyvault show --name <YourKeyVaultName> --query id -o tsv)
-  ```
-- **To Remove a Policy:**
-  ```bash
-  az policy assignment delete --name <assignment-name>
-  ```
-
-🔗 [Docs: Azure Policy Overview](https://learn.microsoft.com/en-us/azure/governance/policy/overview)  
-🔗 [Docs: Manage Policy Assignments](https://learn.microsoft.com/en-us/azure/governance/policy/how-to/assign-policy-portal)
-
-### Mermaid Flow Chart
-
-```mermaid
-graph TD;
-  A[Open Azure Policy **Portal/CLI**] --> B[Search/Browse for Policy or Initiative];
-  B --> C[Assign Policy: Choose Scope & Configure];
-  C --> D[Policy Enforced];
-  D --> E[To Remove: Locate Assignment & Delete];
+#### 5.3 Inspect the Token & Use It 🌐
+```bash
+# Retrieve the token value
+kubectl get secret demo-sa-token -n dev \
+  -o jsonpath='{.data.token}' | base64 --decode
 ```
 
----
-
-## ✅ Summary
-
-Azure Key Vault provides a secure platform to store and manage sensitive data. By leveraging:  
-- **Azure RBAC** for user and application access (with service principals created via the Portal or CLI),  
-- Detailed secret metadata for robust secret management, and  
-- **Azure Policy** to enforce compliance,  
-
-you can achieve enterprise-grade security and governance for your critical assets.
-
-Feel free to clone this document into your GitHub Wiki repository and adjust images, flow charts, or links as needed. Enjoy secure and streamlined secret management with Azure!
+> ⚠️ **NOTE**: This token in going to be used in **`kube-config-file`** to access the reources
 
 ---
+
+### 📊 6. Demonstrating Access Levels
+
+#### 6.1 Cluster-Level Access
+1. **Custom ClusterRole**: e.g. `node-reader` (see above).
+2. **ClusterRoleBinding**: bind `node-reader` to `demo-sa`:
+   ```yaml
+   # crb-mytool-node.yaml
+   apiVersion: rbac.authorization.k8s.io/v1
+   kind: ClusterRoleBinding
+   metadata:
+     name: mytool-node-reader
+   subjects:
+   - kind: ServiceAccount
+     name: demo-sa
+     namespace: dev
+   roleRef:
+     kind: ClusterRole
+     name: node-reader
+     apiGroup: rbac.authorization.k8s.io
+   ```
+3. **Built-in Roles**: you can also bind `view`, `edit`, `admin`, or `cluster-admin`:
+   ```yaml
+   kind: ClusterRoleBinding
+   metadata:
+     name: mytool-sa-view-all
+   subjects:
+   - kind: ServiceAccount
+     name: demo-sa
+     namespace: dev
+   roleRef:
+     kind: ClusterRole
+     name: view
+     apiGroup: rbac.authorization.k8s.io
+   ```
+
+| Role Type         | Scope              | Example Built​‑in                |
+|-------------------|--------------------|---------------------------------|
+| Custom ClusterRole| Any or non-namespaced | `node-reader`, `db-writer`    |
+| Built-in ClusterRole| Curated cluster perms | `view`, `edit`, `admin`, `cluster-admin` |
+
+#### 6.2 Namespace-Level Access
+1. **Custom Role** `cm-editor` in `dev` (see section 3 example).
+2. **RoleBinding**: bind it to `demo-sa` in `dev`.
+3. **Built-in Role**: bind `edit` within the namespace:
+   ```yaml
+   apiVersion: rbac.authorization.k8s.io/v1
+   kind: RoleBinding
+   metadata:
+     name: mytool-sa-edit
+     namespace: dev
+   subjects:
+   - kind: ServiceAccount
+     name: demo-sa
+     namespace: dev
+   roleRef:
+     kind: ClusterRole   # built-in roles are ClusterRoles
+     name: edit
+     apiGroup: rbac.authorization.k8s.io
+   ```
+
+---
+
+### 📄 7. RoleBinding vs ClusterRoleBinding for Built-in Roles
+
+| Binding Type        | Grants Built​‑in Role | Scope                | Use Case                             |
+|---------------------|----------------------|----------------------|--------------------------------------|
+| RoleBinding         | e.g. `edit`          | Single namespace     | Team-specific edit permissions       |
+| ClusterRoleBinding  | e.g. `edit`          | All namespaces       | Globally allow edit on every namespace |
+
+---
+
+### 🛡️ 8. Best Practices & Tips
+- 🎯 **Principle of Least Privilege**: Grant only necessary verbs and resources.
+- ⬆️ **Explicit Secrets**: As of 1.24+, create SA secrets manually for clarity and rotation.
+- 📝 **Version Control**: Keep RBAC manifests in Git.
+- 🔍 **Audit**: `kubectl get roles,rolebindings,clusterroles,clusterrolebindings -o yaml` regularly.
+- 🛠️ **Policy Enforcement**: Use OPA/Gatekeeper or Kyverno to validate & enforce RBAC standards.
+
+---
+❤️‍🔥 Happy securing your cluster! 🚀
+
