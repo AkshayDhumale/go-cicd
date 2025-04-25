@@ -1,3 +1,4 @@
+<img width="1470" alt="Screenshot 2025-01-01 at 11 45 15 PM" src="https://github.com/user-attachments/assets/088900db-cac9-46a2-8908-07ac122a482a" />
 ## 📚 Kubernetes RBAC: Team Guide
 
 ### 📑 Table of Contents
